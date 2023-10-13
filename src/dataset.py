@@ -21,21 +21,18 @@ class FrameDataset(torch.utils.data.Dataset):
         img_path = self.img_files[idx]
         annotations_path = img_path.replace('clips', 'annotations').replace('.jpg', '.txt').replace('frame', 'annotations')
         
-
+        #Turn frame to tensor. Ready to return. Might need to change if we need temporal info
         frame = torch.tensor(cv.imread(img_path))
-        
+
+        #Reading annotations as a DataFrame due to strings. Maybe there is a more optimal way
         annos = pd.read_csv(annotations_path, names = self.columns, delimiter=' ', usecols= range(6))
 
         target = {}
-        boxes = torch.tensor(annos[['x1', 'y1', 'x2', 'y2']].to_numpy())
-        labels = torch.tensor(self.label_encoder.transform(annos['class']))
-
-
-        
-
-
+        target['boxes'] = torch.tensor(annos[['x1', 'y1', 'x2', 'y2']].to_numpy())
+        target['labels'] = torch.tensor(self.label_encoder.transform(annos['class']))
+    
         if self.transform:
             image = self.transform(image)
         if self.target_transform:
             label = self.target_transform(label)
-        return frame, annos
+        return frame, target
