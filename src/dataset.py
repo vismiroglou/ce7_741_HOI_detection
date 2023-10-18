@@ -28,7 +28,7 @@ class FrameDataset(torch.utils.data.Dataset):
         annos = pd.read_csv(annotations_path, names = self.columns, delimiter=' ', usecols= range(6))
 
         target = {}
-        target['boxes'] = torch.tensor(annos[['x1', 'y1', 'x2', 'y2']].to_numpy())
+        target['boxes'] = torch.tensor(annos[['x1', 'y1', 'x2', 'y2']].astype(float).to_numpy())
         target['labels'] = torch.tensor(self.label_encoder.transform(annos['class']))
     
         if self.transform:
