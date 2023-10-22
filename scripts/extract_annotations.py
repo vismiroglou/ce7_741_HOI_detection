@@ -49,7 +49,7 @@ def extract_annotations(dir):
         if os.path.exists(anno_file):
             annos = pd.read_csv(anno_file, sep=' ', names=names_inter, dtype=str)
             for i in annos.index:
-                for frame in range(int(annos.iloc[i]['sFrame']), int(annos.iloc[i]['eFrame'])):
+                for frame in range(int(annos.iloc[i]['sFrame']), int(annos.iloc[i]['eFrame']) + 1):
                     frame_anno = os.path.join(dir, folder, 'annotations_' + f'{frame:04}' + '.txt')
                     if os.path.exists(frame_anno):
                         frame_anno_df = pd.read_csv(frame_anno, sep=' ', names=names_anno, dtype=str)
