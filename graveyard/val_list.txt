@@ -1,0 +1,10 @@
+../data/clips\20210120\clip_33_2048.mp4
+../data/clips\20210305\clip_19_0826.mp4
+../data/clips\20210427\clip_13_0604.mp4
+../data/clips\20200611\clip_1_0028.mp4
+../data/clips\20200811\clip_43_1858.mp4
+../data/clips\20200610\clip_8_1647.mp4
+../data/clips\20200610\clip_19_2148.mp4
+../data/clips\20210313\clip_11_0444.mp4
+../data/clips\20210217\clip_47_2155.mp4
+../data/clips\20210215\clip_42_2200.mp4

@@ -18,5 +18,5 @@ def extract_data(root, destination, data_list):
             if not os.path.exists(path_anno):
                 os.makedirs(path_anno)
             
-            shutil.move(i, path_clips)
-            shutil.move(anno_folder_ini, path_anno)
+            shutil.copy(i, path_clips)
+            shutil.copy(anno_folder_ini, path_anno)
