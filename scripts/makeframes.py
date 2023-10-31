@@ -1,5 +1,6 @@
 import cv2 as cv
 import os
+from glob import glob
 
 def make_frames(clip_dir):
     pathOut = clip_dir.replace('.mp4','')
@@ -7,12 +8,12 @@ def make_frames(clip_dir):
         os.makedirs(pathOut)
     
         vidcap = cv.VideoCapture(clip_dir)
-        count = 1
+        count = 0
         success = True
         while success:
             success,image = vidcap.read()
-            if count%25 == 0:
-                frame_path = os.path.join(pathOut, 'frame_%s.jpg'%'{0:04}'.format(int(count/25)))
+            if count%25 == 0 and count>24:
+                frame_path = os.path.join(pathOut, 'frame_%s.jpg'%'{0:04}'.format(int((count/25)-1)))
                 anno_path = frame_path.replace('clips', 'annotations').replace('frame', 'annotations').replace('.jpg', '.txt')
                 if os.path.exists(anno_path):
                     cv.imwrite(frame_path, image)
@@ -25,9 +26,10 @@ def make_frames(clip_dir):
 
 if __name__ == '__main__':
     #Extracts frames for all clips 
-    dir = '../../data/clips'
-    for folder in os.listdir(dir):
-        day = os.path.join(dir, folder)
-        for clip in os.listdir(day):
-            clip_path = os.path.join(day, clip)
-            make_frames(clip_path)
+    for video_path in glob(os.path.join('../../data_inter/clips/20200515', '*.mp4')):
+        make_frames(video_path)
+    # for folder in os.listdir(dir):
+    #     day = os.path.join(dir, folder)
+    #     for clip in os.listdir(day):
+    #         clip_path = os.path.join(day, clip)
+    #         make_frames(clip_path)
