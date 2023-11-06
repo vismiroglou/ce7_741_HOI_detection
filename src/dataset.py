@@ -1,16 +1,84 @@
 import os
 import pandas as pd
 import torch
-import cv2 as cv
+import cv2
 from glob import glob
 
-class FrameDataset(torch.utils.data.Dataset):
+class CropsDataset(torch.utils.data.Dataset):
+    '''
+    Oracle mode:
+    For training, merge the bounding boxes of the interacting human-object pair.
+    Crop the merged bounding box
+    Output the crop with the interaction
+    '''
+    def __init__(self, img_dir:str, anno_file:str, label_encoder, transform=None, target_transform=None):
+        '''
+        Expects a single annotation file with only interacting frames + frame directory
+        Keeps the frames that are related to annotations.
+        '''
+        self.annotations = pd.read_csv(anno_file, sep=',')
+        self.img_files = []
+        for row in self.annotations.iterrows():
+            frame_id = row[1]['frame_id']
+            frame = os.path.join(img_dir, str(row[1]['folder_name']), str(row[1]['clip_name']), 'frame_' + f'{frame_id:04}'+'.jpg')
+            self.img_files.append(frame)
+        
+        self.label_encoder = label_encoder
+        self.transform = transform
+        self.target_transform = target_transform
+
+    def __len__(self):
+        return len(self.annotations)
+
+    def __getitem__(self, idx):
+        #Read img and annotation
+        img_path = self.img_files[idx]
+        annotations = self.annotations.loc[idx]
+
+        #Create new label and encode it
+        label = 'human-'+annotations['action']+'-'+annotations['object_class']
+        label = self.label_encoder.transform([label])
+        label = torch.tensor(label)
+
+        #Get the merged bounding box and crop the frame around it
+        x1 = min(annotations['hmn_x1'],annotations['obj_x1'])
+        y1 = min(annotations['hmn_y1'],annotations['obj_y1'])
+        x2 = max(annotations['hmn_x2'],annotations['obj_x2'])
+        y2 = max(annotations['hmn_y2'],annotations['obj_y2'])
+
+        #Turn frame to tensor. Ready to return. Might need to change if we need temporal info
+        crop = cv2.imread(img_path)[y1:y2, x1:x2].astype(float)/255
+        crop = crop.transpose((2, 0, 1))
+        crop = torch.tensor(crop).type(torch.float)
+
+        # target = {}
+        # target['boxes'] = torch.tensor(annos[['x1', 'y1', 'x2', 'y2']].astype(int).to_numpy())
+        # target['labels'] = torch.tensor(label)
+    
+        if self.transform:
+            crop = self.transform(crop)
+        if self.target_transform:
+            label = self.target_transform(label)
+        return crop, label
+    
+
+    
+class ObjectDetectorDataset(torch.utils.data.Dataset):
+    '''
+    Merge interacting human-object pairs into a single object with a common bbox.
+    Change their label to the triplet <human, verb, object>
+    For every non interacting human or object change the label to <class, nointer>
+    Classes: human-nointer, bicycle-nointer, motorcycle-nointer, vehicle-nointer
+            human-ride-bicycle, human-walk-bicycle, human-ride-motorcycle, human-walk-motorcycle,
+    To-add  human-enter-car, human-exit-car, human-park-bicycle
+    '''
+    
     def __init__(self, root, label_encoder, transform=None, target_transform=None):
         self.root = root
         self.transform = transform
         self.label_encoder = label_encoder
         self.target_transform = target_transform
-        self.img_files = sorted(glob(os.path.join(root, 'clips' + '*/*/*/*.jpg')))
+        self.img_files = sorted(glob(os.path.join(root, 'clips' + '*/*/*.jpg')))
         self.columns = ['id', 'class','x1','y1','x2','y2']
 
     def __len__(self):
