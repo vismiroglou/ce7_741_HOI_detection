@@ -26,8 +26,8 @@ def make_frames(clip_dir):
 
 if __name__ == '__main__':
     #Extracts frames for all clips 
-    for video_path in glob(os.path.join('../../data_inter/clips/20200515', '*.mp4')):
-        make_frames(video_path)
+    
+    make_frames(r'..\data\mini_test_folder\clips\20200517\clip_21_0949.mp4')
     # for folder in os.listdir(dir):
     #     day = os.path.join(dir, folder)
     #     for clip in os.listdir(day):
