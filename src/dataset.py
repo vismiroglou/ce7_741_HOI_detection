@@ -11,7 +11,7 @@ class CropsDataset(torch.utils.data.Dataset):
     Crop the merged bounding box
     Output the crop with the interaction
     '''
-    def __init__(self, img_dir:str, anno_file:str, label_encoder, transform=None, target_transform=None):
+    def __init__(self, img_dir:str, anno_file:str, label_encoder, threshold = 0, transform=None, target_transform=None):
         '''
         Expects a single annotation file with only interacting frames + frame directory
         Keeps the frames that are related to annotations.
@@ -24,6 +24,7 @@ class CropsDataset(torch.utils.data.Dataset):
             self.img_files.append(frame)
         
         self.label_encoder = label_encoder
+        self.threshold = threshold
         self.transform = transform
         self.target_transform = target_transform
 
@@ -47,7 +48,18 @@ class CropsDataset(torch.utils.data.Dataset):
         y2 = max(annotations['hmn_y2'],annotations['obj_y2'])
 
         #Turn frame to tensor. Ready to return. Might need to change if we need temporal info
-        crop = cv2.imread(img_path)[y1:y2, x1:x2].astype(float)/255
+        crop = cv2.imread(img_path)[y1:y2, x1:x2] #imread crop
+
+        if self.transform == 'thresh':
+            crop = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY) #change to single channel grayscale
+            _, crop = cv2.threshold(crop, self.threshold, 255, cv2.THRESH_BINARY) #apply adaptive threshold
+            crop = cv2.cvtColor(crop, cv2.COLOR_GRAY2BGR) #go back to the 3 channels the model expects
+        elif self.transform == 'ada_thresh':
+            crop = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY) #change to single channel grayscale
+            crop = cv2.adaptiveThreshold(crop, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 3, 0) #apply adaptive threshold
+            crop = cv2.cvtColor(crop, cv2.COLOR_GRAY2BGR) #go back to the 3 channels the model expects
+        
+        crop = crop.astype(float)/255
         crop = crop.transpose((2, 0, 1))
         crop = torch.tensor(crop).type(torch.float)
 
@@ -55,10 +67,6 @@ class CropsDataset(torch.utils.data.Dataset):
         # target['boxes'] = torch.tensor(annos[['x1', 'y1', 'x2', 'y2']].astype(int).to_numpy())
         # target['labels'] = torch.tensor(label)
     
-        if self.transform:
-            crop = self.transform(crop)
-        if self.target_transform:
-            label = self.target_transform(label)
         return crop, label
     
 
