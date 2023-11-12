@@ -20,7 +20,8 @@ class CropsDataset(torch.utils.data.Dataset):
         self.img_files = []
         for row in self.annotations.iterrows():
             frame_id = row[1]['frame_id']
-            frame = os.path.join(img_dir, str(row[1]['folder_name']), str(row[1]['clip_name']), 'frame_' + f'{frame_id:04}'+'.jpg')
+            #frame = os.path.join(img_dir, str(row[1]['folder_name']), str(row[1]['clip_name']), 'frame_' + f'{frame_id:04}'+'.jpg') # Original
+            frame = os.path.join(img_dir, str(row[1]['folder_name']), str(row[1]['clip_name']), 'image_' + f'{frame_id:04}'+'.jpg')
             self.img_files.append(frame)
         
         self.label_encoder = label_encoder
@@ -49,6 +50,9 @@ class CropsDataset(torch.utils.data.Dataset):
 
         #Turn frame to tensor. Ready to return. Might need to change if we need temporal info
         crop = cv2.imread(img_path)[y1:y2, x1:x2] #imread crop
+        org = cv2.imread(img_path) # Added original img
+        org = org.astype(float)/255
+        org = torch.tensor(org).type(torch.float)
 
         if self.transform == 'thresh':
             crop = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY) #change to single channel grayscale
@@ -60,14 +64,14 @@ class CropsDataset(torch.utils.data.Dataset):
             crop = cv2.cvtColor(crop, cv2.COLOR_GRAY2BGR) #go back to the 3 channels the model expects
         
         crop = crop.astype(float)/255
-        crop = crop.transpose((2, 0, 1))
+        #crop = crop.transpose((2, 0, 1))
         crop = torch.tensor(crop).type(torch.float)
 
         # target = {}
         # target['boxes'] = torch.tensor(annos[['x1', 'y1', 'x2', 'y2']].astype(int).to_numpy())
         # target['labels'] = torch.tensor(label)
     
-        return crop, label
+        return crop, label, (x1,y1,x2,y2), org
     
 
     
