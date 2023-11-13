@@ -57,7 +57,7 @@ def get_object_bboxes(annos_path, anno_file):
                                 "obj_y2": bboxes[1][3]
                             }
                             data_list.append(data)
-    return pd.DataFrame(data_list)
+    return pd.DataFrame(data_list).drop_duplicates()
 
 if __name__ == "__main__":
     csv_name = '../../annotations_hoi_video_741.csv'
