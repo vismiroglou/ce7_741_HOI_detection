@@ -50,20 +50,22 @@ class CropsPytorchDataset(torch.utils.data.Dataset):
 
         #Turn frame to tensor. Ready to return. Might need to change if we need temporal info
         crop = cv2.imread(img_path)[y1:y2, x1:x2]#Read crop
-        crop = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)#Change to single-channel grayscale
+        # crop = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)#Change to single-channel grayscale
         # org = cv2.imread(img_path) # Added original img
         # org = org.astype(float)/255
         # org = torch.tensor(org).type(torch.float)
 
         if self.transform == 'thresh':
+            crop = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)#Change to single-channel grayscale
             _, crop = cv2.threshold(crop, self.threshold, 255, cv2.THRESH_BINARY) #apply adaptive threshold
-
+            crop = cv2.cvtColor(crop, cv2.COLOR_GRAY2BGR)#Change to single-channel grayscale
         elif self.transform == 'ada_thresh':
+            crop = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)#Change to single-channel grayscale
             crop = cv2.adaptiveThreshold(crop, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 3, 0) #apply adaptive threshold
-
+            crop = cv2.cvtColor(crop, cv2.COLOR_GRAY2BGR)#Change to single-channel grayscale
         
         crop = crop.astype(float)/255
-        # crop = crop.transpose((2, 0, 1))
+        crop = crop.transpose((2, 0, 1))
         crop = torch.tensor(crop).type(torch.float)
 
         # target = {}
