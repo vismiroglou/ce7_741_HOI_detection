@@ -89,7 +89,7 @@ class CropsScikitDataset(torch.utils.data.Dataset):
         for row in self.annotations.iterrows():
             frame_id = row[1]['frame_id']
             #frame = os.path.join(img_dir, str(row[1]['folder_name']), str(row[1]['clip_name']), 'frame_' + f'{frame_id:04}'+'.jpg') # Original
-            frame = os.path.join(img_dir, str(row[1]['folder_name']), str(row[1]['clip_name']), 'frame_' + f'{frame_id:04}'+'.jpg')
+            frame = os.path.join(img_dir, str(row[1]['folder_name']), str(row[1]['clip_name']), 'image_' + f'{frame_id:04}'+'.jpg')
             self.img_files.append(frame)
         
         self.label_encoder = label_encoder
