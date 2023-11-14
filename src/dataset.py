@@ -57,7 +57,7 @@ class CropsPytorchDataset(torch.utils.data.Dataset):
 
         if self.transform == 'thresh':
             crop = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)#Change to single-channel grayscale
-            _, crop = cv2.threshold(crop, self.threshold, 255, cv2.THRESH_BINARY) #apply adaptive threshold
+            _, crop = cv2.threshold(crop, 0, 255, cv2.THRESH_TOZERO_INV+cv2.THRESH_OTSU) #apply adaptive threshold
             crop = cv2.cvtColor(crop, cv2.COLOR_GRAY2BGR)#Change to single-channel grayscale
         elif self.transform == 'ada_thresh':
             crop = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)#Change to single-channel grayscale
