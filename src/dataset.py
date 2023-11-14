@@ -113,10 +113,10 @@ class CropsScikitDataset(torch.utils.data.Dataset):
         label = torch.tensor(label)
 
         #Get the merged bounding box and crop the frame around it
-        x1 = min(annotations['hmn_x1'],annotations['obj_x1'])
-        y1 = min(annotations['hmn_y1'],annotations['obj_y1'])
-        x2 = max(annotations['hmn_x2'],annotations['obj_x2'])
-        y2 = max(annotations['hmn_y2'],annotations['obj_y2'])
+        x1 = torch.tensor(min(annotations['hmn_x1'],annotations['obj_x1']))
+        y1 = torch.tensor(min(annotations['hmn_y1'],annotations['obj_y1']))
+        x2 = torch.tensor(max(annotations['hmn_x2'],annotations['obj_x2']))
+        y2 = torch.tensor(max(annotations['hmn_y2'],annotations['obj_y2']))
 
         #Turn frame to tensor. Ready to return. Might need to change if we need temporal info
         crop = cv2.imread(img_path)[y1:y2, x1:x2]#Read crop
@@ -136,11 +136,11 @@ class CropsScikitDataset(torch.utils.data.Dataset):
         # crop = crop.transpose((2, 0, 1))
         crop = torch.tensor(crop).type(torch.float)
 
-        # target = {}
+        #target = {"label": label, "coords": (x1, y1, x2, y2)}
         # target['boxes'] = torch.tensor(annos[['x1', 'y1', 'x2', 'y2']].astype(int).to_numpy())
         # target['labels'] = torch.tensor(label)
     
-        return crop, label, (x1, y1, x2, y2), org
+        return crop, label, (x1, y1, x2, y2)
     
 
     
