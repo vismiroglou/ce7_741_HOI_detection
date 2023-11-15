@@ -66,10 +66,8 @@ def pair_creation(anno_file_path:str):
                 pairs.append((annotations.loc[obj, 0], min_distance_id))
             return(pairs)
         else:
-            print('No interactions in the scene')
             return None   
     else:
-        print('No objects in the scene')
         return None
 
 def visualize_annotations(img_path, anno_path):
