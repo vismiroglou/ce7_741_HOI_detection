@@ -1,3 +1,7 @@
+import os
+import pandas as pd
+import math
+
 def collate_fn(batch):
     """
     To handle the data loading as different images may have different number 
@@ -26,3 +30,44 @@ class Averager():
     def reset(self):
         self.current_total = 0.0
         self.iterations = 0.0
+
+def find_center(x1, y1, x2, y2):
+    xc = int((x1 + x2)/2)
+    yc = int((y1 + y2)/2)
+    return xc, yc
+
+def pair_creation(anno_file_path:str):
+    '''
+    Returns a list of tuples of pairs.
+    Returns None if no pairs were found
+    '''
+    if os.stat(anno_file_path).st_size !=0:
+        annotations = pd.read_csv(anno_file_path, sep=' ', header=None)
+        if 'bicycle' in annotations[1].values or 'motorcycle' in annotations[1].values:
+            pairs=[]
+            for obj in annotations[(annotations[1] == 'bicycle') | (annotations[1] == 'motorcycle')].index:
+                min_distance = math.inf
+                min_distance_id = 0
+                xc_o, yc_o = find_center(annotations.loc[obj, 2], 
+                                         annotations.loc[obj, 3], 
+                                         annotations.loc[obj, 4], 
+                                         annotations.loc[obj, 5])
+                for idx in annotations.index.drop(obj):
+                    if annotations.loc[idx, 1] == 'human':
+                        xc_h, yc_h = find_center(annotations.loc[idx, 2], 
+                                                 annotations.loc[idx, 3], 
+                                                 annotations.loc[idx, 4], 
+                                                 annotations.loc[idx, 5])
+                
+                        distance = math.dist([xc_o, yc_o],[xc_h, yc_h])
+                        if distance < min_distance:
+                            min_distance = distance
+                            min_distance_id = annotations.loc[idx, 0]
+                pairs.append((annotations.loc[obj, 0], min_distance_id))
+            return(pairs)
+        else:
+            print('No interactions in the scene')
+            return None   
+    else:
+        print('No objects in the scene')
+        return None
