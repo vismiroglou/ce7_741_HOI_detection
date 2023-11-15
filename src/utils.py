@@ -71,3 +71,23 @@ def pair_creation(anno_file_path:str):
     else:
         print('No objects in the scene')
         return None
+
+def visualize_annotations(img_path, anno_path):
+    import cv2
+    from matplotlib import pyplot as plt
+    from matplotlib.patches import Rectangle
+
+    frame = cv2.imread(img_path)
+    plt.imshow(frame)
+    annos = pd.read_csv(anno_path, sep=' ', header=None)
+    for row in annos.iterrows():
+        x1, y1, x2, y2 = int(row[1][2]), int(row[1][3]), int(row[1][4]), int(row[1][5])
+        label = row[1][0]
+        plt.text(x1, y1, label, fontsize = 12, c='white')
+        plt.gca().add_patch(Rectangle((x1,y1),(x2-x1),(y2-y1),
+                        edgecolor='red',
+                        facecolor='none',
+                        lw=1))
+    plt.show()
+
+
