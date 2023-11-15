@@ -140,7 +140,7 @@ class CropsScikitDataset(torch.utils.data.Dataset):
         # target['boxes'] = torch.tensor(annos[['x1', 'y1', 'x2', 'y2']].astype(int).to_numpy())
         # target['labels'] = torch.tensor(label)
     
-        return crop, label, (x1, y1, x2, y2)
+        return crop, label, (x1, y1, x2, y2), org
     
 
     
