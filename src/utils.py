@@ -79,15 +79,31 @@ def visualize_annotations(img_path, anno_path):
 
     frame = cv2.imread(img_path)
     plt.imshow(frame)
-    annos = pd.read_csv(anno_path, sep=' ', header=None)
-    for row in annos.iterrows():
-        x1, y1, x2, y2 = int(row[1][2]), int(row[1][3]), int(row[1][4]), int(row[1][5])
-        label = row[1][0]
-        plt.text(x1, y1, label, fontsize = 12, c='white')
-        plt.gca().add_patch(Rectangle((x1,y1),(x2-x1),(y2-y1),
-                        edgecolor='red',
-                        facecolor='none',
-                        lw=1))
+    try:
+        annos = pd.read_csv(anno_path, sep=' ', header=None)
+        for row in annos.iterrows():
+            x1, y1, x2, y2 = int(row[1][2]), int(row[1][3]), int(row[1][4]), int(row[1][5])
+            label = row[1][0]
+            plt.text(x1, y1, label, fontsize = 7, c='white')
+            plt.gca().add_patch(Rectangle((x1,y1),(x2-x1),(y2-y1),
+                            edgecolor='red',
+                            facecolor='none',
+                            lw=1))
+    except:
+        print('No objects in the scene')
     plt.show()
 
+def visualize_metrics(classifier, X_test, y_test):
+    from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, ConfusionMatrixDisplay
+    from matplotlib import pyplot as plt
+
+    cm = confusion_matrix(y_test, classifier.predict(X_test))
+    acc = accuracy_score(y_test, classifier.predict(X_test))
+    prec = precision_score(y_test, classifier.predict(X_test), average='macro')
+    recall = recall_score(y_test, classifier.predict(X_test), average='macro')
+    f1 = f1_score(y_test, classifier.predict(X_test), average='macro')
+    print('Accuracy:', acc, '\nPrecision:', prec,'\nRecall:', recall,'\nF1 Score:', f1)
+    disp = ConfusionMatrixDisplay(cm)
+    disp.plot()
+    plt.show()
 
