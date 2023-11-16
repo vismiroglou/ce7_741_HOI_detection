@@ -12,7 +12,7 @@ def get_object_bboxes(annos_path, anno_file):
     df_annos = pd.read_csv(anno_file)
     data_list = []
     for iter, row in df_annos.iterrows():
-        folder_name, clip_name, fs, fe, hid, oid, act, _ = row
+        folder_name, clip_name, fs, fe, hid, oid, act, *_ = row
         anno_path = os.path.join(annos_path, str(folder_name), clip_name)
             
         for frame_id in range(fs,fe+1):
@@ -60,8 +60,9 @@ def get_object_bboxes(annos_path, anno_file):
     return pd.DataFrame(data_list).drop_duplicates()
 
 if __name__ == "__main__":
-    csv_name = '../../annotations_hoi_video_741.csv'
-    object_annotations_path = r'../../annos/'
+    csv_name = r'../data_anno/annotations_hoi_video_742.csv'
+    save_to_path = r"../data_anno/annotations_hoi_frame_742.csv"
+    object_annotations_path = r'../../dataset/annotations/'
 
     data = get_object_bboxes(object_annotations_path, csv_name)
-    data.to_csv("../annotations_hoi_frame_741.csv", index=False)
+    data.to_csv(save_to_path, index=False)
