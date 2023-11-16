@@ -59,8 +59,8 @@ if __name__ == '__main__':
     le.fit(['human-ride-bicycle', 'human-walk-bicycle', 'human-hold-bicycle', 'human-ride-motorcycle', 'human-walk-motorcycle'])
 
     # Initialize dataset and dataloader
-    anno_path = r'../annotations_hoi_frame_741.csv'
-    img_path = r'../../images'
+    anno_path = r'../data_anno/annotations_hoi_742.csv'
+    img_path = r'../../dataset/images'
     dataset = CropsScikitDataset(anno_file=anno_path, img_dir = img_path, label_encoder=le)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=True, collate_fn=collate_fn)
     
