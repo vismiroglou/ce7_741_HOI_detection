@@ -91,17 +91,39 @@ def visualize_annotations(img_path, anno_path):
         print('No objects in the scene')
     plt.show()
 
-def visualize_metrics(classifier, X_test, y_test):
+def visualize_metrics(classifier, X_test, y_test, params, i):
     from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, ConfusionMatrixDisplay
     from matplotlib import pyplot as plt
 
     cm = confusion_matrix(y_test, classifier.predict(X_test))
     acc = accuracy_score(y_test, classifier.predict(X_test))
-    prec = precision_score(y_test, classifier.predict(X_test), average='macro')
-    recall = recall_score(y_test, classifier.predict(X_test), average='macro')
-    f1 = f1_score(y_test, classifier.predict(X_test), average='macro')
+    prec = precision_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
+    recall = recall_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
+    f1 = f1_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
     print('Accuracy:', acc, '\nPrecision:', prec,'\nRecall:', recall,'\nF1 Score:', f1)
-    disp = ConfusionMatrixDisplay(cm)
+    
+    disp = ConfusionMatrixDisplay(cm, display_labels=classifier.classes_)
     disp.plot()
     plt.show()
+    
+def visualize_metrics_plots(classifier, X_test, y_test, params, i):
+    from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, ConfusionMatrixDisplay, classification_report
+    from matplotlib import pyplot as plt
+
+    cm = confusion_matrix(y_test, classifier.predict(X_test))
+    acc = accuracy_score(y_test, classifier.predict(X_test))
+    prec = precision_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
+    recall = recall_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
+    f1 = f1_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
+    report = classification_report(y_test,classifier.predict(X_test),zero_division=0.0)
+    print('Accuracy:', acc, '\nPrecision:', prec,'\nRecall:', recall,'\nF1 Score:', f1,'\nClassification Report:\n',report)
+    
+    disp = ConfusionMatrixDisplay(cm, display_labels=classifier.classes_)
+    plt.figure()
+    disp.plot()
+    plt.title(params)
+    plt.tight_layout()
+    plt.savefig(f"output/cm_{i}.jpg", format="jpg")
+    plt.close()
+    
 
