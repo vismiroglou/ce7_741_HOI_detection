@@ -127,3 +127,40 @@ def visualize_metrics_plots(classifier, X_test, y_test, params, i):
     plt.close()
     
 
+def create_output_video(clf, clip:str = 'data/data_inter/clips/20200519/clip_33_1450.mp4', output_dir:str = 'products/', fps:int = 10):
+    import cv2
+    from sklearn.preprocessing import LabelEncoder
+    from src.detect_interaction import detect_interaction
+    from glob import glob
+
+    le = LabelEncoder()
+    le.fit(['human-ride-bicycle', 'human-walk-bicycle', 'human-hold-bicycle', 'human-ride-motorcycle', 'human-walk-motorcycle'])
+
+    frames_list = []
+    size = (384, 288)
+
+    #Define the output directory
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    anno_dir= clip.replace('clips', 'annotations').replace('.mp4', '')
+    anno_files = sorted(glob(os.path.join(anno_dir, '*.txt')))
+
+    for anno_path in anno_files:
+        frame_path = anno_path.replace('annotations_', 'frame_').replace('annotations', 'clips').replace('.txt', '.jpg')
+        frame = cv2.imread(frame_path) #frame is an actual img whereas frame_path is the path that points to the img in your local machine
+        coords, predictions = detect_interaction(img_path=frame_path, anno_path=anno_path, classifier=clf)
+        if predictions is not None:
+            for coord, prediction in zip(coords, predictions):
+                prediction = str(le.inverse_transform(prediction))
+                cv2.rectangle(frame,(coord[0], coord[1]), (coord[2], coord[3]), (255,0,0),1)
+                cv2.putText(frame,prediction,(coord[0],coord[1]-4),cv2.FONT_HERSHEY_SIMPLEX,0.4,(0,255,0),1,cv2.LINE_AA)
+                
+        frames_list.append(frame)
+
+    out = cv2.VideoWriter(os.path.join(output_dir,'project.avi'),cv2.VideoWriter_fourcc(*'DIVX'), fps, size)
+ 
+    for i in range(len(frames_list)):
+        out.write(frames_list[i])
+    out.release()
+

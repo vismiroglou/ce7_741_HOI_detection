@@ -6,7 +6,8 @@ import cv2
 def detect_interaction(img_path:str, anno_path:str, classifier, pad_h=77, pad_w=62):
     pairs = pair_creation(anno_path)
     if pairs is not None:
-        crops=[]
+        coords = []
+        predictions = []
         annotations = pd.read_csv(anno_path, sep=' ', header=None)
         for pair in pairs:
             x1_o = annotations[annotations[0] == pair[0]][2].item()
@@ -34,8 +35,9 @@ def detect_interaction(img_path:str, anno_path:str, classifier, pad_h=77, pad_w=
 
             crop = np.ravel(crop).reshape(1, -1)
             prediction = classifier.predict(crop)
-            return (x1_m, y1_m, x2_m, y2_m), prediction
+            coords.append((x1_m, y1_m, x2_m, y2_m))
+            predictions.append(prediction)
     else:
-        return None
-    return crops
+        return None, None
+    return coords, predictions
 
