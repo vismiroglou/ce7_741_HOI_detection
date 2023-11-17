@@ -105,7 +105,8 @@ def visualize_metrics(classifier, X_test, y_test):
     disp.plot()
     plt.show()
 
-def create_output_video(clf, clip:str = 'data/data_inter/clips/20200519/clip_33_1450.mp4', output_dir:str = 'products/', fps:int = 10):
+def create_output_video(clf, clip:str = 'data/data_inter/clips/20200519/clip_33_1450.mp4', 
+                        video_name='project.avi', output_dir:str = 'products/', fps:int = 10):
     import cv2
     from sklearn.preprocessing import LabelEncoder
     from src.detect_interaction import detect_interaction
@@ -136,7 +137,7 @@ def create_output_video(clf, clip:str = 'data/data_inter/clips/20200519/clip_33_
                 
         frames_list.append(frame)
 
-    out = cv2.VideoWriter(os.path.join(output_dir,'project.avi'),cv2.VideoWriter_fourcc(*'DIVX'), fps, size)
+    out = cv2.VideoWriter(os.path.join(output_dir, video_name),cv2.VideoWriter_fourcc(*'DIVX'), fps, size)
  
     for i in range(len(frames_list)):
         out.write(frames_list[i])
