@@ -28,8 +28,5 @@ if __name__ == '__main__':
     #Extracts frames for all clips 
     
     make_frames(r'..\data\mini_test_folder\clips\20200517\clip_21_0949.mp4')
-    # for folder in os.listdir(dir):
-    #     day = os.path.join(dir, folder)
-    #     for clip in os.listdir(day):
-    #         clip_path = os.path.join(day, clip)
-    #         make_frames(clip_path)
+    for clip in glob(os.path.join(r'..\data\annotated_data\clips\20200604', '**/*.mp4'),recursive=True):
+        make_frames(clip)
