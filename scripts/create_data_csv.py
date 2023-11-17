@@ -14,10 +14,11 @@ def preprocess(data):
     features, labels = zip(*data)
     labels = np.array(labels).reshape(-1)
     
-    features = [coord[0] for coord in features]
-    features = np.array(features)
-    #print(features)
-    return features, labels
+    # Uncomment for coordinates, else for crops
+    #features = [coord[0] for coord in features]
+    #features = np.array(features)
+    ##print(features)
+    #return features, labels
 
     # Converts each img tensor to numpy arrays
     features = [image[0].numpy() for image in tqdm(features,total=len(features),desc="Converting to np array")]
@@ -47,12 +48,13 @@ def to_csv(data,save_path):
     features, labels = preprocess(data)
 
     # Create dataframe of features and labels
-    #features_df = pd.DataFrame(features, columns=[f'pixel_{i}' for i in range(features.shape[1])])
-    features_df = pd.DataFrame(features, columns=['x1','y1','x2','y2'])
+    features_df = pd.DataFrame(features, columns=[f'pixel_{i}' for i in range(features.shape[1])])
+    #features_df = pd.DataFrame(features, columns=['x1','y1','x2','y2']) # Only for coordinates
     labels_df = pd.DataFrame(labels, columns=['label'])
 
     # Concatenate features and labels along columns
-    df = pd.concat([features_df, labels_df], axis=1)
+    #df = pd.concat([features_df, labels_df], axis=1)
+    df = pd.concat([labels_df, features_df], axis=1)
 
     # Save to CSV
     print("Saving to csv...")
@@ -71,14 +73,14 @@ if __name__ == '__main__':
     # Initialize dataset and dataloader
     anno_path = r'../data_anno/annotations_hoi_frame_742.csv'
     img_path = r'../../dataset/images'
-    save_to_path = r"../data_anno/coords_742.csv"
+    save_to_path = r"../data_anno/crops_742.csv"
     dataset = CropsScikitDataset(anno_file=anno_path, img_dir = img_path, label_encoder=le)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=True, collate_fn=collate_fn)
     
     # Load all the data into memory
     data = []
     for crop, label, coord,_ in tqdm(dataloader,total=len(dataloader),leave=True,desc="Loading into memory"):
-        data.append((coord,label))
+        data.append((crop,label))
     
     # Convert to csv file
     to_csv(data, save_to_path)
