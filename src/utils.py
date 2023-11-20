@@ -91,7 +91,7 @@ def visualize_annotations(img_path, anno_path):
         print('No objects in the scene')
     plt.show()
 
-def visualize_metrics(classifier, X_test, y_test, params=None, i=None):
+def visualize_metrics(classifier, X_test, y_test):
     from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, ConfusionMatrixDisplay
     from matplotlib import pyplot as plt
 
@@ -106,24 +106,45 @@ def visualize_metrics(classifier, X_test, y_test, params=None, i=None):
     disp.plot()
     plt.show()
     
-def visualize_metrics_plots(classifier, X_test, y_test, params, i):
+def visualize_metrics_plots(classifier, X_test, y_test, params, title):
     from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, ConfusionMatrixDisplay, classification_report
     from matplotlib import pyplot as plt
+    
+    from sklearn.preprocessing import LabelEncoder
+    le = LabelEncoder()
+    labels = ['human-hold-bicycle', 'human-ride-bicycle', 'human-ride-motorcycle', 'human-walk-bicycle', 'human-walk-motorcycle', 'human-hold-motorcycle']  
+    le.fit(labels)
 
     cm = confusion_matrix(y_test, classifier.predict(X_test))
     acc = accuracy_score(y_test, classifier.predict(X_test))
     prec = precision_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
     recall = recall_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
     f1 = f1_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
-    report = classification_report(y_test,classifier.predict(X_test),zero_division=0.0)
-    print('Accuracy:', acc, '\nPrecision:', prec,'\nRecall:', recall,'\nF1 Score:', f1,'\nClassification Report:\n',report)
+    test = classifier.predict(X_test)
+    label = le.inverse_transform(test)
     
-    disp = ConfusionMatrixDisplay(cm, display_labels=classifier.classes_)
-    plt.figure()
+    report = classification_report(y_test,classifier.predict(X_test),zero_division=0.0)
+    print('Accuracy:', acc, '\nPrecision:', prec,'\nRecall:', recall,'\nF1 Score:', f1, '\nLabels:')
+    for i in range(len(labels)):
+        print(f"{i}: {le.inverse_transform([i])}")
+            
+    print("\nClassification Report:\n",report)
+    
+    labels = ['human\nhold\nbicycle', 'human\nhold\nmotorcycle', 'human\nride\nbicycle', 'human\nride\nmotorcycle', 'human\nwalk\nbicycle'] 
+    
+    disp = ConfusionMatrixDisplay(cm, display_labels=labels)
+    plt.figure(1)
+    disp.plot(cmap="Blues")
+    plt.title(params)
+    plt.xticks(rotation=45)
+    plt.yticks(rotation=45)
+    plt.show()
+    
+    plt.figure(2)
     disp.plot()
     plt.title(params)
     plt.tight_layout()
-    plt.savefig(f"output/cm_{i}.jpg", format="jpg")
+    plt.savefig(f"output/cm_{title}.jpg", format="jpg")
     plt.close()
     
 
