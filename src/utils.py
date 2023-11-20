@@ -91,7 +91,7 @@ def visualize_annotations(img_path, anno_path):
         print('No objects in the scene')
     plt.show()
 
-def visualize_metrics(classifier, X_test, y_test, params, i):
+def visualize_metrics(classifier, X_test, y_test, params=None, i=None):
     from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, ConfusionMatrixDisplay
     from matplotlib import pyplot as plt
 
