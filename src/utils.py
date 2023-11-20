@@ -91,7 +91,7 @@ def visualize_annotations(img_path, anno_path):
         print('No objects in the scene')
     plt.show()
 
-def visualize_metrics(classifier, X_test, y_test, params=None, i=None):
+def visualize_metrics(classifier, X_test, y_test):
     from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, ConfusionMatrixDisplay
     from matplotlib import pyplot as plt
 
@@ -106,7 +106,7 @@ def visualize_metrics(classifier, X_test, y_test, params=None, i=None):
     disp.plot()
     plt.show()
     
-def visualize_metrics_plots(classifier, X_test, y_test, params, i):
+def visualize_metrics_plots(classifier, X_test, y_test, params, title):
     from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, ConfusionMatrixDisplay, classification_report
     from matplotlib import pyplot as plt
     
@@ -129,17 +129,22 @@ def visualize_metrics_plots(classifier, X_test, y_test, params, i):
         print(f"{i}: {le.inverse_transform([i])}")
             
     print("\nClassification Report:\n",report)
-    disp = ConfusionMatrixDisplay(cm, display_labels=classifier.classes_)
+    
+    labels = ['human\nhold\nbicycle', 'human\nhold\nmotorcycle', 'human\nride\nbicycle', 'human\nride\nmotorcycle', 'human\nwalk\nbicycle'] 
+    
+    disp = ConfusionMatrixDisplay(cm, display_labels=labels)
     plt.figure(1)
-    disp.plot()
+    disp.plot(cmap="Blues")
     plt.title(params)
+    plt.xticks(rotation=45)
+    plt.yticks(rotation=45)
     plt.show()
     
     plt.figure(2)
     disp.plot()
     plt.title(params)
     plt.tight_layout()
-    plt.savefig(f"output/cm_{i}.jpg", format="jpg")
+    plt.savefig(f"output/cm_{title}.jpg", format="jpg")
     plt.close()
     
 
