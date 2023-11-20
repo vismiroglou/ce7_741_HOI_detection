@@ -109,17 +109,33 @@ def visualize_metrics(classifier, X_test, y_test, params, i):
 def visualize_metrics_plots(classifier, X_test, y_test, params, i):
     from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, ConfusionMatrixDisplay, classification_report
     from matplotlib import pyplot as plt
+    
+    from sklearn.preprocessing import LabelEncoder
+    le = LabelEncoder()
+    labels = ['human-hold-bicycle', 'human-ride-bicycle', 'human-ride-motorcycle', 'human-walk-bicycle', 'human-walk-motorcycle', 'human-hold-motorcycle']  
+    le.fit(labels)
 
     cm = confusion_matrix(y_test, classifier.predict(X_test))
     acc = accuracy_score(y_test, classifier.predict(X_test))
     prec = precision_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
     recall = recall_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
     f1 = f1_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
-    report = classification_report(y_test,classifier.predict(X_test),zero_division=0.0)
-    print('Accuracy:', acc, '\nPrecision:', prec,'\nRecall:', recall,'\nF1 Score:', f1,'\nClassification Report:\n',report)
+    test = classifier.predict(X_test)
+    label = le.inverse_transform(test)
     
+    report = classification_report(y_test,classifier.predict(X_test),zero_division=0.0)
+    print('Accuracy:', acc, '\nPrecision:', prec,'\nRecall:', recall,'\nF1 Score:', f1, '\nLabels:')
+    for i in range(len(labels)):
+        print(f"{i}: {le.inverse_transform([i])}")
+            
+    print("\nClassification Report:\n",report)
     disp = ConfusionMatrixDisplay(cm, display_labels=classifier.classes_)
-    plt.figure()
+    plt.figure(1)
+    disp.plot()
+    plt.title(params)
+    plt.show()
+    
+    plt.figure(2)
     disp.plot()
     plt.title(params)
     plt.tight_layout()
