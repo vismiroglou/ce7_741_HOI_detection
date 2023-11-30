@@ -50,8 +50,9 @@ class CropsPytorchDataset(torch.utils.data.Dataset):
         annotations = self.annotations.loc[idx]
 
         #Create new label and encode it
-        label = 'human-'+annotations['action']+'-'+annotations['object_class']
+        label = annotations['label']
         label = self.label_encoder.transform([label])
+        
 
         if self.find_pairs:
             #Do not use the annotated human. Instead find the closest human to the object.
