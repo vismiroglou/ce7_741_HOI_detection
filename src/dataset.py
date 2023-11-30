@@ -145,7 +145,8 @@ class CropsPytorchDataset(torch.utils.data.Dataset):
         return xc, yc
     
     def calc_weights(self):
-        
+        print('hi')
+
 
     
 class CropsScikitDataset(torch.utils.data.Dataset):
