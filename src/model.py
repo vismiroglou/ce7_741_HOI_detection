@@ -20,7 +20,7 @@ class NW_CNN(nn.Module):
         self.act3 = nn.ReLU()
         self.drop3 = nn.Dropout(0.5)
  
-        self.fc4 = nn.Linear(1080,  6)
+        self.fc4 = nn.Linear(1080,  5)
         self.logSoftmax = nn.LogSoftmax(dim=1)
  
     def forward(self, x):
