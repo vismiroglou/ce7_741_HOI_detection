@@ -39,7 +39,7 @@ class CropsPytorchDataset(torch.utils.data.Dataset):
         self.target_transform = target_transform
 
         if weights:
-            self.weights = self.calc_weights()
+            self.weighted_sampler = self.calc_weights()
 
     def __len__(self):
         return len(self.annotations)
@@ -145,11 +145,15 @@ class CropsPytorchDataset(torch.utils.data.Dataset):
         return xc, yc
     
     def calc_weights(self):
+        from torch.utils.data import WeightedRandomSampler
         counts = self.annotations['label'].value_counts()
         weights = []
         for row in self.annotations.iterrows():
             weights.append(1./counts[row[1]['label']])
-        return weights
+
+        weights = torch.from_numpy(weights)
+        sampler = WeightedRandomSampler(weights, len(weights))
+        return sampler
 
 
     
