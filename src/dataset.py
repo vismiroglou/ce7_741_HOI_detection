@@ -151,7 +151,7 @@ class CropsPytorchDataset(torch.utils.data.Dataset):
         for row in self.annotations.iterrows():
             weights.append(1./counts[row[1]['label']])
 
-        weights = torch.from_numpy(weights)
+        weights = torch.FloatTensor(weights)
         sampler = WeightedRandomSampler(weights, len(weights))
         return sampler
 
