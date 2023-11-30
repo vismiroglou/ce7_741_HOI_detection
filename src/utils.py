@@ -107,7 +107,7 @@ def visualize_metrics(classifier, X_test, y_test):
     plt.show()
     
 def visualize_metrics_plots(classifier, X_test, y_test, params, title):
-    from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, ConfusionMatrixDisplay, classification_report
+    from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, ConfusionMatrixDisplay, classification_report, balanced_accuracy_score, multilabel_confusion_matrix
     from matplotlib import pyplot as plt
     
     from sklearn.preprocessing import LabelEncoder

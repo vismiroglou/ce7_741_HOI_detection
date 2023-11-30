@@ -166,3 +166,7 @@ data_anno/testing_data_crops.csv
 output/
 data_anno/training_data_coords.csv
 data_anno/testing_data_coords.csv
+data_anno/training_data_pair_crops.csv
+data_anno/training_data_pair_coords.csv
+data_anno/testing_data_pair_crops.csv
+data_anno/testing_data_pair_coords.csv
