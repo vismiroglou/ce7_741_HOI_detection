@@ -145,7 +145,11 @@ class CropsPytorchDataset(torch.utils.data.Dataset):
         return xc, yc
     
     def calc_weights(self):
-        print('hi')
+        counts = self.annotations['label'].value_counts()
+        weights = []
+        for row in self.annotations.iterrows():
+            weights.append(1./counts[row[1]['label']])
+        return weights
 
 
     
