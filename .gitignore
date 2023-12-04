@@ -170,3 +170,5 @@ data_anno/training_data_pair_crops.csv
 data_anno/training_data_pair_coords.csv
 data_anno/testing_data_pair_crops.csv
 data_anno/testing_data_pair_coords.csv
+data_anno/data_741.csv
+data_anno/data_742.csv
