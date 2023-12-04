@@ -12,28 +12,34 @@ class CropsPytorchDataset(torch.utils.data.Dataset):
     Crop the merged bounding box
     Output the crop with the interaction
     '''
-    def __init__(self, img_dir:str, anno_file:str, label_encoder, target_shape=(77,62), threshold = 0, padding=True, transform=None, target_transform=None, find_pairs=False):
+    def __init__(self, img_dir:str, anno_file:str, label_encoder, target_shape=(77,62), threshold = 0, padding=True, transform=None, target_transform=None, find_pairs=False, weights=False):
         '''
         Expects a single annotation file with only interacting frames + frame directory
         Keeps the frames that are related to annotations.
         '''
+        #Read the annotations and create the labels
         self.annotations = pd.read_csv(anno_file, sep=',')
+        self.annotations['label'] = 'human-'+ self.annotations['action'] + '-' + self.annotations['object_class']
+        #Add all img paths to a list. The same frame can exist multiple times if there are multiple interactions in it.
+        #Every image corresponds to one row of the dataframe
         self.img_files = []
         for row in self.annotations.iterrows():
             frame_id = row[1]['frame_id']
-            #frame = os.path.join(img_dir, str(row[1]['folder_name']), str(row[1]['clip_name']), 'frame_' + f'{frame_id:04}'+'.jpg') # Original
             frame = os.path.join(img_dir, str(row[1]['folder_name']), str(row[1]['clip_name']), 'frame_' + f'{frame_id:04}'+'.jpg')
             self.img_files.append(frame)
         
+        self.find_pairs = find_pairs
         self.label_encoder = label_encoder
 
+        #Transformations
         self.padding = padding
         self.target_shape = target_shape
-
-        self.find_pairs = find_pairs
         self.threshold = threshold
         self.transform = transform
         self.target_transform = target_transform
+
+        if weights:
+            self.weighted_sampler = self.calc_weights()
 
     def __len__(self):
         return len(self.annotations)
@@ -44,8 +50,9 @@ class CropsPytorchDataset(torch.utils.data.Dataset):
         annotations = self.annotations.loc[idx]
 
         #Create new label and encode it
-        label = 'human-'+annotations['action']+'-'+annotations['object_class']
+        label = annotations['label']
         label = self.label_encoder.transform([label])
+        
 
         if self.find_pairs:
             #Do not use the annotated human. Instead find the closest human to the object.
@@ -132,12 +139,23 @@ class CropsPytorchDataset(torch.utils.data.Dataset):
         hmn = annotations[annotations[0] == min_distance_id].index
         x1_h, y1_h, x2_h, y2_h = annotations.iloc[hmn, 2].item(), annotations.iloc[hmn, 3].item(), annotations.iloc[hmn, 4].item(), annotations.iloc[hmn, 5].item()
         return(x1_h, y1_h, x2_h, y2_h)
-      
         
     def find_center(self, x1, y1, x2, y2):
         xc = int((x1 + x2)/2)
         yc = int((y1 + y2)/2)
         return xc, yc
+    
+    def calc_weights(self):
+        from torch.utils.data import WeightedRandomSampler
+        counts = self.annotations['label'].value_counts()
+        weights = []
+        for row in self.annotations.iterrows():
+            weights.append(1./counts[row[1]['label']])
+
+        weights = torch.FloatTensor(weights)
+        sampler = WeightedRandomSampler(weights, len(weights))
+        return sampler
+
 
     
 class CropsScikitDataset(torch.utils.data.Dataset):
