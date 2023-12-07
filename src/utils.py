@@ -111,6 +111,7 @@ def visualize_metrics_plots(classifier, X_test, y_test, params, title):
     from matplotlib import pyplot as plt
     import numpy as np
     import time
+    from textwrap import wrap
     
     from sklearn.preprocessing import LabelEncoder
     le = LabelEncoder()
@@ -138,15 +139,17 @@ def visualize_metrics_plots(classifier, X_test, y_test, params, title):
     print("\nClassification Report:\n",report)
     
     #labels = ['human\nhold\nbicycle','human\nride\nbicycle', 'human\nride\nmotorcycle', 'human\nwalk\nbicycle',"human\nhold\nmotorcycle"]
-    labels = [le.inverse_transform([i]) for i in labels]
-    labels = [label[0].replace("-", "\n") for label in labels]
+    #labels = [le.inverse_transform([i]) for i in labels]
+    #labels = [label[0].replace("-", "\n") for label in labels]
+    labels = le.inverse_transform([0, 1, 2, 3, 4])
+    labels = labels = [ '\n'.join(wrap(l, 8)) for l in labels ]
     
     disp = ConfusionMatrixDisplay(cm, display_labels=labels)
     plt.figure(1)
     disp.plot(cmap="Blues")
     plt.title(params)
-    plt.xticks(rotation=45)
-    plt.yticks(rotation=45)
+    plt.xticks(rotation=20, ha='right', fontsize=8)
+    plt.yticks(rotation=20, va='top', fontsize=8)
     plt.show()
     
     #disp2 = ConfusionMatrixDisplay.from_estimator(classifier, X_test, y_test, normalize="true",display_labels=labels)
@@ -155,8 +158,8 @@ def visualize_metrics_plots(classifier, X_test, y_test, params, title):
     disp2 = ConfusionMatrixDisplay(cm_normalized, display_labels=labels)
     disp2.plot(cmap="Blues")
     plt.title(params + "\nNORMALIZED")
-    plt.xticks(rotation=45)
-    plt.yticks(rotation=45)
+    plt.xticks(rotation=20, ha='right', fontsize=8)
+    plt.yticks(rotation=20, va='top', fontsize=8)
     plt.show()
     
     #plt.figure(3)
