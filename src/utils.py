@@ -109,10 +109,14 @@ def visualize_metrics(classifier, X_test, y_test):
 def visualize_metrics_plots(classifier, X_test, y_test, params, title):
     from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score, ConfusionMatrixDisplay, classification_report, balanced_accuracy_score, multilabel_confusion_matrix
     from matplotlib import pyplot as plt
+    import numpy as np
+    import time
+    from textwrap import wrap
     
     from sklearn.preprocessing import LabelEncoder
     le = LabelEncoder()
-    labels = ['human-hold-bicycle', 'human-ride-bicycle', 'human-ride-motorcycle', 'human-walk-bicycle', 'human-walk-motorcycle', 'human-hold-motorcycle']  
+    labels = ['human-hold-bicycle', 'human-ride-bicycle', 'human-ride-motorcycle', 'human-walk-bicycle', 'human-hold-motorcycle']  
+    #labels = labels = ['human-hold-bicycle', 'human-park-bicycle', 'human-park-motorcycle', 'human-pickup-bicycle', 'human-pickup-motorcycle', 'human-ride-bicycle', 'human-ride-motorcycle', 'human-ride-vehicle', 'human-walk-bicycle', 'human-walk-motorcycle', 'human-hold-motorcycle']
     le.fit(labels)
 
     cm = confusion_matrix(y_test, classifier.predict(X_test))
@@ -120,32 +124,50 @@ def visualize_metrics_plots(classifier, X_test, y_test, params, title):
     prec = precision_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
     recall = recall_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
     f1 = f1_score(y_test, classifier.predict(X_test), average='macro',zero_division=0.0)
-    test = classifier.predict(X_test)
-    label = le.inverse_transform(test)
+    
+    timestart = time.time()
+    _ = classifier.predict(X_test)
+    timeend = time.time() - timestart
+    #label = le.inverse_transform(test)
     
     report = classification_report(y_test,classifier.predict(X_test),zero_division=0.0)
-    print('Accuracy:', acc, '\nPrecision:', prec,'\nRecall:', recall,'\nF1 Score:', f1, '\nLabels:')
-    for i in range(len(labels)):
+    print('Accuracy:', acc, '\nPrecision:', prec,'\nRecall:', recall,'\nF1 Score:', f1, '\nTime:',timeend, '\nLabels:')
+    labels = sorted(le.transform(labels))
+    for i in labels:
         print(f"{i}: {le.inverse_transform([i])}")
             
     print("\nClassification Report:\n",report)
     
-    labels = ['human\nhold\nbicycle', 'human\nhold\nmotorcycle', 'human\nride\nbicycle', 'human\nride\nmotorcycle', 'human\nwalk\nbicycle'] 
+    #labels = ['human\nhold\nbicycle','human\nride\nbicycle', 'human\nride\nmotorcycle', 'human\nwalk\nbicycle',"human\nhold\nmotorcycle"]
+    #labels = [le.inverse_transform([i]) for i in labels]
+    #labels = [label[0].replace("-", "\n") for label in labels]
+    labels = le.inverse_transform([0, 1, 2, 3, 4])
+    labels = labels = [ '\n'.join(wrap(l, 8)) for l in labels ]
     
     disp = ConfusionMatrixDisplay(cm, display_labels=labels)
     plt.figure(1)
     disp.plot(cmap="Blues")
     plt.title(params)
-    plt.xticks(rotation=45)
-    plt.yticks(rotation=45)
+    plt.xticks(rotation=20, ha='right', fontsize=8)
+    plt.yticks(rotation=20, va='top', fontsize=8)
     plt.show()
     
-    plt.figure(2)
-    disp.plot()
-    plt.title(params)
-    plt.tight_layout()
-    plt.savefig(f"output/cm_{title}.jpg", format="jpg")
-    plt.close()
+    #disp2 = ConfusionMatrixDisplay.from_estimator(classifier, X_test, y_test, normalize="true",display_labels=labels)
+    #disp2 = ConfusionMatrixDisplay.from_predictions( y_test,classifier.predict(X_test), normalize="true",display_labels=labels,cmap="Blues")
+    cm_normalized = cm.astype("float") / cm.sum(axis=1)[:, np.newaxis]
+    disp2 = ConfusionMatrixDisplay(cm_normalized, display_labels=labels)
+    disp2.plot(cmap="Blues")
+    plt.title(params + "\nNORMALIZED")
+    plt.xticks(rotation=20, ha='right', fontsize=8)
+    plt.yticks(rotation=20, va='top', fontsize=8)
+    plt.show()
+    
+    #plt.figure(3)
+    #disp.plot()
+    #plt.title(params)
+    #plt.tight_layout()
+    #plt.savefig(f"output/cm_{title}.jpg", format="jpg")
+    #plt.close()
     
 
 def create_output_video(clf, clip:str = 'data/data_inter/clips/20200519/clip_33_1450.mp4', 

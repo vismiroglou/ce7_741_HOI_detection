@@ -146,12 +146,12 @@ def create_dataset_csv(anno_path: str, img_path: str, save_to_path: str, target_
         data = []
         start_time = time.time()
         if processing == "crops":
-            for crop, _, label in tqdm(dataloader,total=len(dataloader),leave=True,desc="Loading into memory"):
+            for crop, label, *_ in tqdm(dataloader,total=len(dataloader),leave=True,desc="Loading into memory"):
                     data.append((crop,label))
             end_time = time.time()
             print(f"Pairs: False\nProcessing: Crops\nTime: {end_time - start_time}")
         elif processing == "coords":
-            for _, coord, label in tqdm(dataloader,total=len(dataloader),leave=True,desc="Loading into memory"):
+            for _, coord, label, _ in tqdm(dataloader,total=len(dataloader),leave=True,desc="Loading into memory"):
                     data.append((coord,label))
             end_time = time.time()
             print(f"Pairs: False\nProcessing: Coords\nTime: {end_time - start_time}")
@@ -183,8 +183,8 @@ def create_dataset_csv(anno_path: str, img_path: str, save_to_path: str, target_
 if __name__ == '__main__':
     # Setting up label encoder
     le = LabelEncoder()
-    labels = ['human-hold-bicycle', 'human-ride-bicycle', 'human-ride-motorcycle', 'human-walk-bicycle', 'human-walk-motorcycle', 'human-hold-motorcycle']
-    #labels = ['human-hold-bicycle', 'human-ride-bicycle', 'human-ride-motorcycle', 'human-walk-bicycle', 'human-walk-motorcycle']
+    labels = ['human-hold-bicycle', 'human-ride-bicycle', 'human-ride-motorcycle', 'human-walk-bicycle', 'human-walk-motorcycle', 'human-hold-motorcycle'] # ORIGINAL
+    #labels = ['human-hold-bicycle', 'human-ride-bicycle', 'human-ride-motorcycle', 'human-hold-motorcycle', 'human-walk-bicycle']
     #labels = ['human-hold-bicycle', 'human-park-bicycle', 'human-park-motorcycle', 'human-pickup-bicycle', 'human-pickup-motorcycle', 'human-ride-bicycle', 'human-ride-motorcycle', 'human-ride-vehicle', 'human-walk-bicycle', 'human-walk-motorcycle', 'human-hold-motorcycle']
     le.fit(labels)
 
@@ -197,6 +197,17 @@ if __name__ == '__main__':
     save_to_path_train = r"../data_anno/training_data_pair_crops.csv"
     anno_path_test = r'../data_anno/testing_data.csv'
     save_to_path_test = r"../data_anno/testing_data_pair_crops.csv"
+    
+    # REMOVE AFTER
+    create_dataset_csv(anno_path=r"../data_anno/annotations_hoi_frame_741.csv",
+                       img_path=img_path,
+                       save_to_path=r"../data_anno/data_741.csv",
+                       target_shape=(77,62),
+                       processing="crops",
+                       pairs=False,
+                       le=le)
+    # REMOVE AFTER
+    sys.exit()
     
     # Create dataset csv for crops
     print("Creating dataset for crops...")
